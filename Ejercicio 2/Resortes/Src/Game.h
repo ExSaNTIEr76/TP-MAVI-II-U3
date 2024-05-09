@@ -17,6 +17,8 @@ private:
 	Color clearColor;
 
 	// Objetos de box2d
+	b2Body* draggedBody;
+	b2Vec2 clickOffset;
 	b2World* phyWorld;
 	SFMLRenderer* debugRender;
 
@@ -28,7 +30,6 @@ public:
 	//Constructores, destructores e inicializadores
 	Game(int ancho, int alto, std::string titulo);
 	void CheckCollitions();
-	void CreateEnemy(int x, int y);
 	~Game(void);
 	void InitPhysics();
 
@@ -38,4 +39,5 @@ public:
 	void UpdatePhysics();
 	void DoEvents();
 	void SetZoom();
+	void HandleDraggedBody();
 };

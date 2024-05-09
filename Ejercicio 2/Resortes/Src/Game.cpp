@@ -13,18 +13,20 @@ Game::Game(int ancho, int alto, std::string titulo)
 	frameTime = 1.0f / fps; // Calcula el tiempo por cuadro en segundos
 	SetZoom(); // Configura el "zoom" o vista de la cámara
 	InitPhysics(); // Inicializa la simulación de física
+	draggedBody = nullptr; // Inicializa draggedBody como nullptr
 }
 
 void Game::Loop()
 {
-	while (wnd->isOpen()) // Bucle principal del juego que se ejecuta mientras la ventana esté abierta
+	while (wnd->isOpen())
 	{
-		wnd->clear(clearColor); // Limpia la ventana con el color de fondo
-		DoEvents(); // Maneja los eventos (input del usuario)
-		CheckCollitions(); // Verifica colisiones (a implementar)
-		UpdatePhysics(); // Actualiza la simulación de física
-		DrawGame(); // Dibuja los elementos del juego
-		wnd->display(); // Muestra los cambios en la ventana
+		wnd->clear(clearColor);
+		DoEvents();
+		CheckCollitions();
+		UpdatePhysics();
+		HandleDraggedBody();
+		DrawGame();
+		wnd->display();
 	}
 }
 
@@ -35,7 +37,6 @@ void Game::UpdatePhysics()
 	phyWorld->DebugDraw(); // Dibuja la representación de debug de la simulación
 }
 
-
 void Game::DrawGame()
 {
 	// Función para dibujar los elementos del juego (a implementar)
@@ -44,22 +45,40 @@ void Game::DrawGame()
 void Game::DoEvents()
 {
 	Event evt;
-	while (wnd->pollEvent(evt)) // Procesa todos los eventos acumulados
+	while (wnd->pollEvent(evt))
 	{
 		switch (evt.type)
 		{
-		case Event::Closed: // Si se solicita cerrar la ventana
-			wnd->close(); // Cierra la ventana
+		case Event::Closed:
+			wnd->close();
 			break;
-		case Event::MouseButtonPressed: // Si se presiona un botón del ratón
-			// Crea un cuerpo dinámico con forma triangular en la posición del clic
-			b2Body* body = Box2DHelper::CreateTriangularDynamicBody(phyWorld, b2Vec2(0.0f, 0.0f), 10.0f, 1.0f, 4.0f, 0.1f);
-			Vector2f pos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y)); // Transforma la posición del clic a coordenadas del mundo
-			body->SetTransform(b2Vec2(pos.x, pos.y), 0.0f); // Mueve el cuerpo a la posición del clic
+		case Event::MouseButtonPressed:
+			if (evt.mouseButton.button == Mouse::Left)
+			{
+				Vector2f clickPos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y));
+				b2Vec2 b2ClickPos(clickPos.x, clickPos.y);
+
+				for (b2Body* b = phyWorld->GetBodyList(); b; b = b->GetNext())
+				{
+					if (b->GetType() == b2_dynamicBody && b->GetFixtureList() && b->GetFixtureList()->TestPoint(b2ClickPos))
+					{
+						draggedBody = b;
+						clickOffset = b->GetPosition() - b2ClickPos;
+						return;
+					}
+				}
+			}
+			break;
+		case Event::MouseButtonReleased:
+			if (evt.mouseButton.button == Mouse::Left)
+			{
+				draggedBody = nullptr;
+			}
 			break;
 		}
 	}
 }
+
 
 void Game::CheckCollitions()
 {
@@ -72,6 +91,16 @@ void Game::SetZoom()
 	camara.setSize(100.0f, 100.0f); // Establece el tamaño de la vista
 	camara.setCenter(50.0f, 50.0f); // Centra la vista en un punto del mundo
 	wnd->setView(camara); // Aplica la vista a la ventana
+}
+
+void Game::HandleDraggedBody()
+{
+	if (draggedBody)
+	{
+		Vector2f mousePos = wnd->mapPixelToCoords(Mouse::getPosition(*wnd));
+		b2Vec2 b2MousePos(mousePos.x, mousePos.y);
+		draggedBody->SetTransform(b2MousePos + clickOffset, draggedBody->GetAngle());
+	}
 }
 
 void Game::InitPhysics()
