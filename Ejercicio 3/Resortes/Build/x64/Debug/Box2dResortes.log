@@ -1,8 +1,0 @@
-﻿  Box2dEmptyApp.cpp
-  Game.cpp
-C:\Users\I-MAG\Desktop\TP MAVI II - U3\Ejercicio 3\Resortes\Src\Game.cpp(16,16): warning C4101: 'mouseJoint': variable local sin referencia
-  SFMLRenderer.cpp
-C:\Users\I-MAG\Desktop\TP MAVI II - U3\Ejercicio 3\Resortes\Src\SFMLRenderer.cpp(123,25): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\I-MAG\Desktop\TP MAVI II - U3\Ejercicio 3\Resortes\Src\SFMLRenderer.cpp(123,22): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
-  Generando código...
-  Box2dResortes.vcxproj -> C:\Users\I-MAG\Desktop\TP MAVI II - U3\Ejercicio 3\Resortes\Bin\Debug\Box2dResortes.exe
